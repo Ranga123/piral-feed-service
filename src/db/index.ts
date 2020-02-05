@@ -1,30 +1,77 @@
 import { Pilet } from '../types';
+import * as Fs from 'fs';
 
-const piletData: Record<string, Record<string, Pilet>> = {};
+
+var piletData: Record<string, Record<string, Pilet>> = {};
 
 export async function getPilets(): Promise<Array<Pilet>> {
-  const pilets: Array<Pilet> = [];
 
-  Object.keys(piletData).forEach(name =>
-    Object.keys(piletData[name]).forEach(version => {
-      const pilet = piletData[name][version];
-      pilets.push(pilet);
-    }),
-  );
-
-  return pilets;
+  return readFile().then(() => {
+    const pilets: Array<Pilet> = [];
+    Object.keys(piletData).forEach(name => {
+      //console.info(' GetPilates- pilte name=',piletData[name] );
+      Object.keys(piletData[name]).forEach(version => {
+        const pilet = piletData[name][version];
+        pilets.push(pilet);
+      });
+    });
+    return pilets;
+  });
 }
+
 
 export async function getPilet(name: string, version: string): Promise<Pilet | undefined> {
-  const versions = piletData[name] || {};
-  return versions[version];
+  return readFile().then(() => {
+    const versions = piletData[name] || {};
+    //console.info('versions=', versions);
+    return versions[version];
+  });
 }
 
+function readFile() {
+  return new Promise(function (resolve, reject) {
+
+    Fs.readFile('PiletDatafile.txt', function (err, data) {
+      if (err) {
+        console.error(err);
+        return reject(err);
+      } else {
+
+        piletData = JSON.parse(data.toString());
+
+        //console.info("Asynchronous read: " + piletData);
+        resolve(data);
+      }
+    });
+  });
+}
+
+
 export async function setPilet(pilet: Pilet) {
-  const meta = pilet.meta;
-  const current = piletData[meta.name] || {};
-  piletData[meta.name] = {
-    ...current,
-    [meta.version]: pilet,
-  };
+  readFile().then(() => {
+    //console.info('Pile=', pilet);
+    const meta = pilet.meta;
+    //console.info('Pile meta info=', meta);
+    const current = piletData[meta.name] || {};
+    //console.info('Pile current info=', current);
+    //console.info('pileData Before =', piletData);
+    piletData[meta.name] = {
+      ...current,
+      [meta.version]: pilet,
+    };
+
+    //console.info('pileData after=', piletData);
+
+    Fs.writeFile('PiletDatafile.txt', JSON.stringify(piletData), function (err) {
+      if (err) {
+        return console.error(err);
+      }
+      console.log("File created!");
+      readFile();
+    });
+
+    //console.info('JSON string=',JSON.stringify(piletData));
+  });
+
+
 }
