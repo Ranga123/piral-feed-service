@@ -66,7 +66,7 @@ export async function setPilet(pilet: Pilet) {
       if (err) {
         return console.error(err);
       }
-      console.log("File created!");
+      //console.log("File created!");
       readFile();
     });
 
