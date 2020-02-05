@@ -30,17 +30,22 @@ export async function getPilet(name: string, version: string): Promise<Pilet | u
 
 function readFile() {
   return new Promise(function (resolve, reject) {
+    Fs.exists('PiletDatafile.txt', function (exists) {
+      if (exists) {
+        Fs.readFile('PiletDatafile.txt', function (err, data) {
+          if (err) {
+            console.error(err);
+            return reject(err);
+          } else {
 
-    Fs.readFile('PiletDatafile.txt', function (err, data) {
-      if (err) {
-        console.error(err);
-        return reject(err);
+            piletData = JSON.parse(data.toString());
+
+            //console.info("Asynchronous read: " + piletData);
+            resolve(data);
+          }
+        });
       } else {
-
-        piletData = JSON.parse(data.toString());
-
-        //console.info("Asynchronous read: " + piletData);
-        resolve(data);
+        resolve({});
       }
     });
   });
