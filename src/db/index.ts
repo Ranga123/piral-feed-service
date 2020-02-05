@@ -38,14 +38,15 @@ function readFile() {
             return reject(err);
           } else {
 
+            //piletData = JSON.parse(data.toString().replace(/ 0+(?![\. }])/g, ' '));
             piletData = JSON.parse(data.toString());
-
             //console.info("Asynchronous read: " + piletData);
-            resolve(data);
+            resolve(piletData);
           }
         });
       } else {
-        resolve({});
+        piletData = {};
+        resolve(piletData);
       }
     });
   });
